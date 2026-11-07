@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Estimate what an ADU, garage conversion, junior ADU or prefab ADU could cost in your state — itemised breakdown, permit and impact-fee notes, and rent and return estimates. Estimates only, from published 2026 research." />
+<link rel="icon" href="data:," />
+<title>ADU Cost Calculator and City Guides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F6F2EA; --surface:#FFFDF7; --surface2:#EFE9DC;
+    --ink:#22302A; --muted:#5A6A60; --faint:#84917F;
+    --accent:#1E6B4F; --accent-ink:#FFFFFF; --terra:#B9551F;
+    --line:#DCD3BF; --chip:#E9E2D0;
+    --warn-bg:#FBF0DC; --warn-line:#E3C98F; --warn-ink:#6B4E12;
+    --shadow:0 10px 30px rgba(34,48,42,.10);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#131916; --surface:#1C2420; --surface2:#232D27;
+      --ink:#ECF1EA; --muted:#A9B8AC; --faint:#7E8F82;
+      --accent:#57B98E; --accent-ink:#0E1A14; --terra:#E08A5F;
+      --line:#354239; --chip:#2A352E;
+      --warn-bg:#2E2716; --warn-line:#6B5A2E; --warn-ink:#EBD9A0;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{transition:none!important} }
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;font-size:16px;line-height:1.55}
+  h1,h2,h3{font-family:"Spectral",Georgia,serif;line-height:1.15;margin:0}
+  a{color:var(--accent)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  /* ---------- hero ---------- */
+  .hero{padding:44px 0 8px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+  .hero h1{font-size:clamp(32px,4.6vw,52px);font-weight:700;letter-spacing:-.01em}
+  .hero p.lede{font-size:18px;color:var(--muted);margin:16px 0 0;max-width:34em}
+  .hero-fig{margin:0}
+  .hero-fig img{width:100%;height:auto;display:block;border-radius:10px;box-shadow:var(--shadow)}
+  .hero-fig figcaption{font-size:13px;color:var(--faint);margin-top:8px}
+  .anchors{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .anchors a{display:inline-block;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+  .anchors a.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .anchors a:hover{border-color:var(--accent)}
+
+  .estimate-note{margin:26px 0 0;background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:14px 18px;color:var(--warn-ink);font-size:15px}
+  .estimate-note strong{font-weight:700}
+
+  /* ---------- stat strip ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:30px 0 6px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .stat .big{font-family:"Spectral",serif;font-size:26px;font-weight:700}
+  .stat .lbl{font-size:13.5px;color:var(--muted);margin-top:2px}
+  .stat .src{font-size:12px;color:var(--faint);margin-top:6px}
+
+  /* ---------- sections ---------- */
+  section{padding:38px 0 6px}
+  .sec-head{max-width:46em}
+  .sec-head h2{font-size:clamp(24px,3vw,32px);font-weight:700}
+  .sec-head p{color:var(--muted);margin:10px 0 0}
+
+  /* ---------- calculator ---------- */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px;align-items:start}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
+  .panel h3{font-size:19px;margin-bottom:14px}
+  fieldset{border:0;margin:0 0 20px;padding:0}
+  legend,.flabel{font-weight:700;font-size:14px;letter-spacing:.02em;margin-bottom:10px;display:block}
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .type-card{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--surface);height:100%}
+  .type-card input{flex:0 0 auto;width:19px;height:19px;margin:2px 0 0;accent-color:var(--accent);cursor:pointer}
+  .type-card .t{font-weight:700;font-size:15px;display:block}
+  .type-card .d{font-size:13px;color:var(--muted);display:block;margin-top:3px}
+  .type-card:has(input:checked){border-color:var(--accent);background:var(--surface2)}
+  .type-card:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+  .size-row{display:flex;align-items:baseline;gap:10px}
+  .size-val{font-family:"Spectral",serif;font-size:30px;font-weight:700}
+  .size-unit{color:var(--muted);font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--accent);margin:8px 0 4px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:5px 13px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+  .chip:hover{border-color:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  select,input[type=text],input[type=number]{width:100%;font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+  select:focus,input:focus{border-color:var(--accent);outline:none}
+  .seg{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{flex:1;font:inherit;font-weight:600;font-size:14px;padding:9px 6px;background:var(--surface);color:var(--muted);border:0;cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+  .hint{font-size:13px;color:var(--faint);margin-top:6px}
+
+  /* results */
+  .result-head{font-size:13.5px;color:var(--muted);font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+  .result-range{font-family:"Spectral",serif;font-size:clamp(30px,3.6vw,42px);font-weight:700;line-height:1.1;margin:6px 0 2px}
+  .result-mid{font-size:15px;color:var(--muted)}
+  .result-mid strong{color:var(--ink)}
+  table.break{width:100%;border-collapse:collapse;margin-top:18px;font-size:15px}
+  table.break th,table.break td{padding:9px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  table.break td.amt,table.break th.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.break tr.total td{border-bottom:0;font-weight:700;font-size:16px}
+  table.break .note{display:block;font-size:12.5px;color:var(--faint);font-weight:400}
+  .bar{height:8px;border-radius:99px;background:var(--chip);margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .notes{margin:18px 0 0;padding:0;list-style:none}
+  .notes li{padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:14.5px;background:var(--surface)}
+  .notes li b{font-weight:700}
+  .rent-box{margin-top:18px;background:var(--surface2);border-radius:10px;padding:16px}
+  .rent-box h4{margin:0 0 8px;font-size:15px;font-family:"Archivo",sans-serif}
+  .rent-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+  .rent-grid .n{font-family:"Spectral",serif;font-size:21px;font-weight:700}
+  .rent-grid .l{font-size:12.5px;color:var(--muted)}
+  .copy-btn{margin-top:16px;width:100%;font:inherit;font-weight:700;padding:12px;border-radius:9px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+  .copy-btn:hover{filter:brightness(1.07)}
+  .copied{font-size:13px;color:var(--accent);text-align:center;margin-top:8px;min-height:18px;font-weight:600}
+
+  /* ---------- compare table ---------- */
+  .table-scroll{overflow-x:auto;margin-top:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table.cmp{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+  table.cmp th,table.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  table.cmp thead th{font-family:"Archivo",sans-serif;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);background:var(--surface2)}
+  table.cmp tbody th{font-weight:700}
+  table.cmp tr:last-child td,table.cmp tr:last-child th{border-bottom:0}
+
+  /* ---------- guides ---------- */
+  .guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+  .guide{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .guide h3{font-size:19px;margin-bottom:8px}
+  .guide p{font-size:14.5px;color:var(--muted);margin:0 0 10px}
+  .guide p b{color:var(--ink)}
+  .guide ul{margin:0;padding-left:18px;font-size:14.5px}
+  .guide ul li{margin-bottom:5px}
+  .guide .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--terra);margin-bottom:8px}
+  .topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
+  .guide-grid.two{grid-template-columns:1fr 1fr}
+  @media (max-width:900px){ .guide-grid.two{grid-template-columns:1fr} }
+
+  /* ---------- photos ---------- */
+  .photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+  .photo-card{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .photo-card img{width:100%;height:170px;object-fit:cover;display:block}
+  .photo-card figcaption{padding:10px 14px 12px;font-size:13.5px}
+  .photo-card figcaption b{display:block;font-size:14.5px}
+  .photo-card figcaption span{color:var(--muted)}
+  .guide img.card-photo{width:100%;height:180px;object-fit:cover;display:block;border-radius:8px;margin-bottom:14px}
+  @media (max-width:900px){ .photo-grid{grid-template-columns:1fr 1fr} }
+  @media (max-width:560px){ .photo-grid{grid-template-columns:1fr} .photo-card img{height:200px} }
+
+  .checklist{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;margin-top:22px}
+  .checklist h3{font-size:19px;margin-bottom:10px}
+  .checklist ul{margin:0;padding-left:20px}
+  .checklist li{margin-bottom:7px;font-size:15px}
+
+  footer{margin-top:48px;border-top:1px solid var(--line);padding:26px 0 40px}
+  footer h2{font-size:20px;margin-bottom:10px}
+  footer ul{margin:0 0 14px;padding-left:18px;font-size:14px;color:var(--muted)}
+  footer p{font-size:13.5px;color:var(--faint);max-width:60em}
+  footer a{word-break:break-all}
+
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr}
+    .calc{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .guide-grid{grid-template-columns:1fr}
+    .topic-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .types{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .rent-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .wrap{padding:0 16px}
+  }
+  @media (max-width:680px){
+    .table-scroll{overflow-x:visible}
+    table.cmp{min-width:0}
+    table.cmp thead{display:none}
+    table.cmp tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}
+    table.cmp tbody tr:last-child{border-bottom:0}
+    table.cmp th,table.cmp td{display:block;border-bottom:0;padding:4px 14px}
+    table.cmp td::before{content:attr(data-th);display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <h1>What would an ADU actually cost on your lot?</h1>
+        <p class="lede">Pick a build type, a size and your state. You get an itemised cost range, the permit and impact-fee notes that change it, and a rent-and-return estimate — built from published 2026 cost research, not a national average with the hard parts left out.</p>
+        <div class="anchors">
+          <a class="primary" href="#calculator">Open the calculator</a>
+          <a href="#state-guides">City &amp; state guides</a>
+          <a href="#topic-guides">Topic guides</a>
+        </div>
+      </div>
+      <figure class="hero-fig">
+        <img src="assets/hero-real.webp" alt="Photograph of a modern detached backyard ADU with dark wood siding and an orange front door, in a landscaped garden with the main house behind it" width="1376" height="768" />
+        <figcaption>Photo — a detached backyard ADU in front of the main house. Photo credits are listed with the sources at the bottom of the page.</figcaption>
+      </figure>
+    </div>
+    <p class="estimate-note"><strong>Estimates only — not a quote.</strong> Every figure on this page is a range from the published research listed under Sources, checked 6 November 2026. ADU costs, permits and impact fees change by city and by year. Confirm your numbers with a local contractor and your city&rsquo;s permit office before you commit money.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats" aria-label="Key cost anchors from the research">
+    <div class="stat"><div class="big">~$180,000</div><div class="lbl">National average for a detached ADU</div><div class="src">Cottage / Maxable, via FindaTinyHouse</div></div>
+    <div class="stat"><div class="big">$110,000</div><div class="lbl">Average garage conversion in 2026 — most run $60k–$150k</div><div class="src">Angi, Oct 2026</div></div>
+    <div class="stat"><div class="big">$150–$300</div><div class="lbl">Typical cost per square foot, site-built</div><div class="src">BuildWithAPlan / SelfStorage</div></div>
+    <div class="stat"><div class="big">$20k–$50k</div><div class="lbl">Site work — the line builder quotes often leave out</div><div class="src">Research §1C, keyword gap #1</div></div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- ================= CALCULATOR ================= -->
+  <section id="calculator">
+    <div class="sec-head">
+      <h2>ADU cost calculator</h2>
+      <p>Four build types, priced the way the research prices them: detached and prefab by state cost per square foot, garage conversions and junior ADUs on the conversion range. Change anything — the estimate, breakdown and permit notes update as you go.</p>
+    </div>
+
+    <div class="calc">
+      <form class="panel" id="calcForm" aria-label="Calculator inputs">
+        <h3>Your project</h3>
+
+        <fieldset>
+          <legend>Build type</legend>
+          <div class="types">
+            <label class="type-card">
+              <input type="radio" name="btype" value="detached" checked />
+              <span><span class="t">Detached ADU</span><span class="d">New standalone unit in the backyard, site-built.</span></span>
+            </label>
+            <label class="type-card">
+              <input type="radio" name="btype" value="garage" />
+              <span><span class="t">Garage conversion</span><span class="d">Convert an existing garage into a legal unit.</span></span>
+            </label>
+            <label class="type-card">
+              <input type="radio" name="btype" value="jadu" />
+              <span><span class="t">Junior ADU (JADU)</span><span class="d">Under 500 sq ft, inside the existing home or garage.</span></span>
+            </label>
+            <label class="type-card">
+              <input type="radio" name="btype" value="prefab" />
+              <span><span class="t">Prefab ADU</span><span class="d">Factory-built unit, delivered and set on your lot.</span></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Finished size</legend>
+          <div class="size-row"><span class="size-val" id="sizeVal">600</span><span class="size-unit">square feet</span></div>
+          <input type="range" id="size" min="200" max="1200" step="25" value="600" aria-label="Finished size in square feet" />
+          <div class="chips" role="group" aria-label="Common sizes">
+            <button type="button" class="chip" data-size="400">400 sq ft</button>
+            <button type="button" class="chip" data-size="600">600 sq ft</button>
+            <button type="button" class="chip" data-size="800">800 sq ft</button>
+            <button type="button" class="chip" data-size="1000">1,000 sq ft</button>
+            <button type="button" class="chip" data-size="1200">1,200 sq ft</button>
+          </div>
+          <p class="hint" id="sizeHint"></p>
+        </fieldset>
+
+        <div class="grid2">
+          <div>
+            <label class="flabel" for="state">State</label>
+            <select id="state">
+              <option value="CA" selected>California</option>
+              <option value="TX">Texas</option>
+              <option value="FL">Florida</option>
+              <option value="OR">Oregon</option>
+              <option value="WA">Washington</option>
+              <option value="VT">Vermont</option>
+              <option value="CT">Connecticut</option>
+              <option value="OTHER">Another state</option>
+            </select>
+          </div>
+          <div>
+            <label class="flabel" for="city">Your city (optional)</label>
+            <input type="text" id="city" placeholder="e.g. Austin" autocomplete="off" />
+          </div>
+        </div>
+        <p class="hint">Your city personalises the permit notes. City-level fee tables were <em>not</em> verified in the research — that gap is flagged in your result, not filled with a guess.</p>
+
+        <fieldset style="margin-top:20px">
+          <legend>Site-work allowance</legend>
+          <div class="seg" role="group" aria-label="Include site work">
+            <button type="button" id="siteYes" aria-pressed="true">Include $20k–$50k</button>
+            <button type="button" id="siteNo" aria-pressed="false">Leave it out</button>
+          </div>
+          <p class="hint">Grading, utility trenching and hookups. The research flags this as the cost most often missing from headline quotes.</p>
+        </fieldset>
+
+        <div>
+          <label class="flabel" for="rent">Rent you expect, per month (optional)</label>
+          <input type="number" id="rent" min="0" step="25" placeholder="e.g. 1400" inputmode="numeric" />
+          <p class="hint">The research gives no verified rent figures by city, so rent is yours to enter — the return maths below uses only this number.</p>
+        </div>
+      </form>
+
+      <div class="panel" aria-live="polite">
+        <div class="result-head" id="resultHead">Your estimate</div>
+        <div class="result-range" id="resultRange">—</div>
+        <div class="result-mid" id="resultMid"></div>
+
+        <table class="break" aria-label="Itemised cost breakdown">
+          <thead><tr><th>Cost line</th><th class="amt">Estimate</th></tr></thead>
+          <tbody id="breakBody"></tbody>
+        </table>
+
+        <h3 style="margin-top:22px;font-size:17px">Permit &amp; fee notes for this project</h3>
+        <ul class="notes" id="permitNotes"></ul>
+
+        <div class="rent-box">
+          <h4>Rent &amp; return</h4>
+          <p style="margin:0;font-size:14px;color:var(--muted)" id="rentEmpty">Enter an expected monthly rent on the left to see gross annual rent, a simple payback period, and gross yield on the mid estimate.</p>
+          <div class="rent-grid" id="rentGrid" hidden>
+            <div><div class="n" id="rentAnnual">—</div><div class="l">Gross rent per year</div></div>
+            <div><div class="n" id="rentPayback">—</div><div class="l">Simple payback (mid cost ÷ gross rent)</div></div>
+            <div><div class="n" id="rentYield">—</div><div class="l">Gross yield per year</div></div>
+          </div>
+          <p style="margin:10px 0 0;font-size:13px;color:var(--faint)">Gross figures only. The real return is rent minus loan payments, property tax, insurance and vacancy — none of which the research prices by city, so they are not estimated here.</p>
+        </div>
+
+        <button type="button" class="copy-btn" id="copyBtn">Copy this estimate</button>
+        <div class="copied" id="copiedMsg" role="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COMPARE ================= -->
+  <section id="compare">
+    <div class="sec-head">
+      <h2>The four build types, side by side</h2>
+      <p>Every range below is the range the research itself publishes. Where the research gives no separate figure for a type, the table says so instead of borrowing a number from somewhere else.</p>
+    </div>
+    <div class="photo-grid" aria-label="Photographs of the four ADU build types">
+      <figure class="photo-card">
+        <img src="assets/detached-real.webp" alt="Photograph of a small detached ADU with cream siding, a black roof and sliding glass doors opening onto a lawn" width="1200" height="900" loading="lazy" />
+        <figcaption><b>Detached ADU</b><span>A new standalone unit in the backyard, site-built.</span></figcaption>
+      </figure>
+      <figure class="photo-card">
+        <img src="assets/garage-real.jpg" alt="Photograph inside a converted garage ADU — open-plan living room and kitchen, with a bedroom beyond a sliding barn door" width="1536" height="1024" loading="lazy" />
+        <figcaption><b>Garage conversion</b><span>Inside a finished conversion — living space where cars used to park.</span></figcaption>
+      </figure>
+      <figure class="photo-card">
+        <img src="assets/interior-real.webp" alt="Photograph of a compact junior ADU interior with a small white kitchen, sofa and round dining table" width="1000" height="563" loading="lazy" />
+        <figcaption><b>Junior ADU (JADU)</b><span>A compact unit under 500 sq ft, carved from the existing home.</span></figcaption>
+      </figure>
+      <figure class="photo-card">
+        <img src="assets/prefab-real.jpg" alt="Photograph of a modern prefab backyard unit with cedar siding, large sliding glass doors and a wooden deck" width="1200" height="673" loading="lazy" />
+        <figcaption><b>Prefab ADU</b><span>A factory-built unit delivered and set on the lot, deck and all.</span></figcaption>
+      </figure>
+    </div>
+    <div class="table-scroll">
+      <table class="cmp">
+        <thead><tr><th scope="col">Type</th><th scope="col">Cost basis in the research</th><th scope="col">Timeline</th><th scope="col">Watch out for</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">Detached ADU</th>
+            <td data-th="Cost basis in the research">$150–$300/sq ft typical; California $320–$350+/sq ft; Texas ~$250–$265/sq ft. National average ~$180,000.</td>
+            <td data-th="Timeline">Site-built: 6–18 months (vendor ranges)</td>
+            <td data-th="Watch out for">Site work of $20k–$50k is often excluded from the headline quote.</td>
+          </tr>
+          <tr>
+            <th scope="row">Garage conversion</th>
+            <td data-th="Cost basis in the research">$120–$220/sq ft; totals $45k–$150k. Angi average $110,000 in 2026, most $60k–$150k.</td>
+            <td data-th="Timeline">Not stated in the research</td>
+            <td data-th="Watch out for">The itemised lines that decide the real price: slab, plumbing, electrical-panel upgrade, insulation, egress.</td>
+          </tr>
+          <tr>
+            <th scope="row">Junior ADU (JADU)</th>
+            <td data-th="Cost basis in the research">No separate $/sq ft in the research — the calculator prices it on the garage-conversion range and labels it as a benchmark. Defined as under 500 sq ft.</td>
+            <td data-th="Timeline">Not stated in the research</td>
+            <td data-th="Watch out for">Rules differ from a full ADU: owner-occupancy and kitchen/bath sharing rules apply in the California-focused guidance the research draws on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Prefab ADU</th>
+            <td data-th="Cost basis in the research">No separate $/sq ft in the research — priced here on the national $150–$300/sq ft range, plus site work.</td>
+            <td data-th="Timeline">Delivery in 2–8 weeks vs. 6–18 months site-built (vendor ranges)</td>
+            <td data-th="Watch out for">Vendor prices often omit delivery, crane and utility-hookup costs — ask for them in writing.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= CITY & STATE GUIDES ================= -->
+  <section id="state-guides">
+    <div class="sec-head">
+      <h2>City &amp; state guides</h2>
+      <p>California and Texas are the two states the research prices directly. Florida is a high-demand search state with no verified state price in the research — its guide says exactly that. Below the state cards, the city layer: how your city&rsquo;s tier changes permits and timelines, and a live guide for the city you entered in the calculator.</p>
+    </div>
+    <div class="guide-grid">
+      <article class="guide">
+        <img class="card-photo" src="assets/california-real.jpg" alt="Photograph of a light-blue detached backyard ADU beside a wooden fence, with the main house behind it" width="768" height="513" loading="lazy" />
+        <span class="tag">Priced in the research</span>
+        <h3>California</h3>
+        <p><b>~$340/sq ft</b> (BuildWithAPlan anchor; range $320–$350+). California has a statewide ADU law, and is one of the reform states driving national demand.</p>
+        <ul>
+          <li><b>Impact fees:</b> waived for ADUs under 750 sq ft — the single biggest fee lever in the state.</li>
+          <li><b>JADU rules</b> in California guidance cover owner-occupancy and shared kitchen/bath arrangements.</li>
+          <li>Confirm your city&rsquo;s current fee schedule and timelines — they still vary locally.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <img class="card-photo" src="assets/texas-real.jpg" alt="Photograph of a brick suburban home with a two-car garage and a large front lawn in Temple, Texas" width="1200" height="800" loading="lazy" />
+        <span class="tag">Priced in the research</span>
+        <h3>Texas</h3>
+        <p><b>~$264/sq ft</b> (BuildWithAPlan anchor; range ~$250–$265) — well under California, which is why the same floor plan pencils out very differently here.</p>
+        <ul>
+          <li>Texas is <b>not</b> listed among the states with a statewide ADU law in the research — your city&rsquo;s zoning decides.</li>
+          <li>Start with the parcel check in the topic guides: zoning, setbacks and lot coverage.</li>
+          <li>Get the permit and impact-fee schedule from your city before you price the build.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <img class="card-photo" src="assets/florida-real.webp" alt="Photograph of a stucco Florida home with palm trees, a tiled roof and a paved driveway" width="1024" height="683" loading="lazy" />
+        <span class="tag">Price not verified — open question</span>
+        <h3>Florida</h3>
+        <p>Florida is one of the three state variants searchers ask about most, but the research found <b>no verified Florida $/sq ft</b>. The calculator therefore prices Florida projects on the national $150–$300/sq ft range.</p>
+        <ul>
+          <li>Treat any Florida-specific figure you see elsewhere as unverified until a local contractor confirms it.</li>
+          <li>Ask your city for its ADU rules, permit costs and impact fees in writing.</li>
+          <li>If you get two or more real Florida quotes, they are worth more than any national table — including this one.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="checklist">
+      <h3>States with statewide ADU laws</h3>
+      <p style="color:var(--muted);margin:0 0 10px">Per the research: <b>California, Oregon, Washington, Vermont and Connecticut</b> have statewide ADU laws, and <b>40+ states</b> have introduced ADU-friendly legislation since 2020. A statewide law does not set your price — it mainly decides whether your city can block the project. Everywhere else, and for every fee, your city and county rules govern. Confirm locally.</p>
+    </div>
+
+    <h3 style="font-size:22px;margin:30px 0 4px">City guides — your city&rsquo;s tier decides the permit story</h3>
+    <p style="color:var(--muted);max-width:46em;margin:0">The research splits permit timelines by <b>city tier</b>, not by state — and it verified no per-city fee table, so no honest page can quote your city&rsquo;s fees from national data. What a city guide can do is tell you which tier your city is in and exactly what to pull from it. That is what these two guides and the live panel below do.</p>
+    <div class="guide-grid two">
+      <article class="guide">
+        <span class="tag">City tier 1</span>
+        <h3>The ADU-friendly city</h3>
+        <p>Cities in states with statewide ADU laws, and cities that have streamlined ADU permits, sit in this tier. Reviews move, fee schedules are published, and pre-approved plans may exist.</p>
+        <ul>
+          <li>Still confirm: total fees for your size, and whether an impact-fee waiver applies (in California, under 750 sq ft).</li>
+          <li>Ask for the current average review time — friendly cities publish it.</li>
+          <li>Your risk here is less the permit, more the build queue: 6–18 months site-built in the research&rsquo;s vendor ranges.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <span class="tag">City tier 2</span>
+        <h3>The slow city</h3>
+        <p>No statewide ADU law behind you, a zoning code that predates ADUs, or a permit office that treats each application as a special case. This is where projects stall — usually on an incomplete application, not the review itself.</p>
+        <ul>
+          <li>Book a pre-application meeting before paying for drawings.</li>
+          <li>Get three answers in writing: is an ADU allowed on my lot, total fees, current review time.</li>
+          <li>Check short-term-rental and owner-occupancy rules before you count any rent.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="panel" style="margin-top:18px" aria-live="polite">
+      <h3 id="cgTitle">Your city guide</h3>
+      <table class="break" style="margin-top:6px">
+        <tbody>
+          <tr><td style="font-weight:700;width:34%">Where you&rsquo;re building</td><td id="cgPlace">Enter your city in the calculator above</td></tr>
+          <tr><td style="font-weight:700">State law position</td><td id="cgLaw">—</td></tr>
+          <tr><td style="font-weight:700">Cost basis used</td><td id="cgBasis">—</td></tr>
+          <tr><td style="font-weight:700">Fee lever to check first</td><td id="cgFee">—</td></tr>
+        </tbody>
+      </table>
+      <h4 style="margin:16px 0 6px;font-size:15px">Pull these five from your city before you price the build</h4>
+      <ul style="margin:0;padding-left:20px;font-size:15px">
+        <li>Your parcel&rsquo;s zone, and its setbacks, lot-coverage and minimum-lot-size numbers</li>
+        <li>Total permit + impact fees for your unit&rsquo;s size, in writing</li>
+        <li>Current average permit review time</li>
+        <li>Owner-occupancy, parking and short-term-rental rules for ADUs</li>
+        <li>Whether pre-approved ADU plans exist — they cut both design cost and review time</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= TOPIC GUIDES ================= -->
+  <section id="topic-guides">
+    <div class="sec-head">
+      <h2>Topic guides — the questions around the cost</h2>
+      <p>The eight decisions the research found national pages glossing over. Each guide states what is actually known, and flags what only your city, lender or attorney can answer.</p>
+    </div>
+    <div class="topic-grid">
+      <article class="guide">
+        <h3>Can I build on my lot? Zoning, setbacks, lot size</h3>
+        <p>City code PDFs are close to unreadable, which is why this is the most-searched question in the cluster. Work it in this order:</p>
+        <ul>
+          <li>Find your parcel on your city&rsquo;s zoning map and note the zone.</li>
+          <li>Check three numbers for that zone: minimum lot size, rear/side setbacks, and maximum lot coverage.</li>
+          <li>Work one example with your real measurements before paying for drawings — if the unit plus setbacks exceeds lot coverage, the project stops there.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <h3>ADU vs. tiny house on wheels</h3>
+        <p>A tiny house on wheels is <b>banned in roughly 80% of US municipalities</b> (FindaTinyHouse figure) as a permanent dwelling. An ADU is a permitted structure on your own lot, which is why it can be financed, insured and rented as housing.</p>
+        <ul>
+          <li>Legal where you live? ADU: yes in the five statewide-law states, city-dependent elsewhere. THOW: usually no.</li>
+          <li>If a seller tells you a THOW needs no permit, treat that as the red flag it is — confirm with your city.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <img class="card-photo" src="assets/build-real.jpg" alt="Photograph of a site-built ADU under construction — wood framing and roof trusses going up in a backyard" width="875" height="560" loading="lazy" />
+        <h3>Prefab vs. site-built</h3>
+        <p>Prefab vendors quote <b>2–8 weeks delivery</b>; a site-built ADU runs <b>6–18 months</b> (vendor ranges). The speed is real — the price comparison usually is not, because prefab quotes commonly leave out:</p>
+        <ul>
+          <li>Delivery and crane placement</li>
+          <li>Foundation and utility hookups</li>
+          <li>Site work — the same $20k–$50k line</li>
+        </ul>
+        <p>Ask any prefab vendor for an all-in price in writing, with those three lines itemised, before comparing it to a builder&rsquo;s quote.</p>
+      </article>
+      <article class="guide">
+        <h3>Financing: HELOC, cash-out refi, FHA 203(k), construction loan</h3>
+        <p>Lender pages sell loans; the research&rsquo;s gap is an independent comparison. No rates are published here — the research verifies none — so compare on structure instead:</p>
+        <ul>
+          <li><b>HELOC:</b> draws on existing equity; fits phased builds like garage conversions.</li>
+          <li><b>Cash-out refinance:</b> replaces your mortgage; compare the new rate on the <em>whole</em> balance, not just the ADU amount.</li>
+          <li><b>FHA 203(k) / construction loan:</b> built for projects, with draws and inspections — more paperwork, purpose-made.</li>
+          <li><b>The appraisal problem:</b> ADUs often have no comparable sales nearby, so the appraised value can come in under build cost. Ask your lender how they handle that before you apply.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <h3>Permits: cost and how long approval takes</h3>
+        <p>Permit timelines split by <b>city tier — ADU-friendly vs. slow</b> — more than by state. The research does not publish a verified per-city fee or day count, so:</p>
+        <ul>
+          <li>In California, check the under-750 sq ft impact-fee waiver first — it can remove a whole fee category.</li>
+          <li>Ask your permit office two questions in writing: total fees for your size, and current average review time.</li>
+          <li>The common delay is an incomplete application, not the review itself — a pre-application meeting is usually the cheapest week you will save.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <img class="card-photo" src="assets/granny-real.jpg" alt="Photograph of a small grey backyard cottage with a garden path, set between two houses" width="1400" height="886" loading="lazy" />
+        <h3>A backyard cottage for an aging parent</h3>
+        <p>&ldquo;Granny pod&rdquo; and backyard-cottage options for a parent run <b>$40,000–$250,000</b> in the roundups the research cites. Beyond price, weigh:</p>
+        <ul>
+          <li>Accessibility from day one: step-free entry, a bathroom that fits a carer, door widths.</li>
+          <li>Proximity vs. privacy — close enough to help at 2 a.m., separate enough for two households.</li>
+          <li><b>Medicaid and estate implications</b> of building on your lot with a parent&rsquo;s money — talk to an elder-law attorney before funds move. This page cannot advise on that.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <h3>Does an ADU raise my property value — and my tax?</h3>
+        <p>Realtor pages hand-wave this; the assessor does not. Two separate realities:</p>
+        <ul>
+          <li><b>Value:</b> added value is not the same as build cost. Appraisals depend on comparable rentals and sales, which may not exist yet in your neighbourhood.</li>
+          <li><b>Tax:</b> a new permitted structure is normally reassessed by your county. Budget for a higher tax bill from completion, and confirm the reassessment rules with your county assessor.</li>
+        </ul>
+      </article>
+      <article class="guide">
+        <img class="card-photo" src="assets/living-real.webp" alt="Photograph of a finished, furnished ADU interior — open kitchen and living room with sliding doors onto the garden" width="1537" height="1024" loading="lazy" />
+        <h3>Rental rules: Airbnb or long-term only?</h3>
+        <p>Whether you can short-term-let an ADU is a <b>city rule</b>, and it is one of the most-searched questions in the cluster. Before you count any rent:</p>
+        <ul>
+          <li>Check your city&rsquo;s short-term-rental rules for ADUs specifically — many cities allow long-term rental but ban ADU Airbnbs.</li>
+          <li>Check owner-occupancy and parking requirements that attach to the permit.</li>
+          <li>Run the calculator&rsquo;s return maths on the long-term rent you are actually allowed to charge, not the nightly rate you hope for.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="checklist">
+      <h3>Before you sign anything — the quote check</h3>
+      <ul>
+        <li>Is site work ($20k–$50k in the research) inside the quote, or listed as &ldquo;TBC&rdquo;?</li>
+        <li>For a garage conversion: are slab, plumbing, electrical-panel upgrade, insulation and egress each a named line?</li>
+        <li>For prefab: are delivery, crane and utility hookups priced, in writing?</li>
+        <li>Are permit and impact fees included — and if you are in California under 750 sq ft, has the impact-fee waiver been applied?</li>
+        <li>Does the total assume your city allows the unit at all? One zoning confirmation is cheaper than one redesign.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>Sources</h2>
+    <ul>
+      <li>BuildWithAPlan — ADU costs (California ~$340/sq ft, Texas ~$264/sq ft, garage conversion $120–$220/sq ft): <a href="https://www.buildwithaplan.com/adu-costs" target="_blank" rel="noopener">https://www.buildwithaplan.com/adu-costs</a></li>
+      <li>Angi — cost to convert a garage to an ADU (2026 average $110,000; most $60k–$150k): <a href="https://Www.Angi.com/articles/cost-to-convert-garage-to-adu.htm" target="_blank" rel="noopener">https://Www.Angi.com/articles/cost-to-convert-garage-to-adu.htm</a></li>
+      <li>SelfStorage — ADU construction cost (national average ~$180,000; $150–$300/sq ft): <a href="https://www.selfstorage.com/blog/adu-construction-cost/" target="_blank" rel="noopener">https://www.selfstorage.com/blog/adu-construction-cost/</a></li>
+      <li>FindaTinyHouse — ADU vs. tiny home, 2026 (national average via Cottage/Maxable; statewide ADU laws; THOW legality): <a href="https://www.findatinyhouse.com/guides/adu-vs-tiny-home-which-makes-more-financial-sense-in-2026" target="_blank" rel="noopener">https://www.findatinyhouse.com/guides/adu-vs-tiny-home-which-makes-more-financial-sense-in-2026</a></li>
+    </ul>
+    <h2 style="margin-top:22px">Photo credits</h2>
+    <ul>
+      <li>Hero — modern detached backyard ADU: Dwelling Index, <a href="https://dwellingindex.com/articles/california-adu-laws/" target="_blank" rel="noopener">California ADU laws</a></li>
+      <li>Detached ADU exterior: Renova Built, <a href="https://renovabuilt.com/projects/" target="_blank" rel="noopener">project gallery</a></li>
+      <li>Garage conversion interior: PixelArch, <a href="https://pixelarchllc.com/detached-garage-adu-southern-california/" target="_blank" rel="noopener">detached garage ADU, Southern California</a></li>
+      <li>Junior ADU interior: Golden State ADUs, <a href="https://gsadus.com/garage-conversion-cost/" target="_blank" rel="noopener">garage conversion cost guide</a></li>
+      <li>Prefab ADU: My Forever Builders, <a href="https://myforeverbuilders.com/blog/page/7/" target="_blank" rel="noopener">blog</a></li>
+      <li>California guide — backyard ADU: SQFT Studios, <a href="https://sqftstudios.com/product/accessory-dwelling-units-adus/" target="_blank" rel="noopener">accessory dwelling units</a></li>
+      <li>Texas guide — Temple, TX home: Hammonds Home Media listing photography, <a href="https://orders.hammondshomemedia.com/sites/5114-waterford-ct-temple-tx-76502-22572452/branded" target="_blank" rel="noopener">5114 Waterford Ct, Temple, TX</a></li>
+      <li>Florida guide — Florida home: FastExpert, <a href="https://www.fastexpert.com/blog/buying-a-home-in-florida/" target="_blank" rel="noopener">buying a home in Florida</a></li>
+      <li>Site-built ADU under construction: Better Place Design + Build, <a href="https://betterplacedesignbuild.com/floor-plans/pine/" target="_blank" rel="noopener">Pine floor plan</a></li>
+      <li>Backyard cottage: Superior Renovations NZ (granny flat photo)</li>
+      <li>Finished ADU interior: Donovan Remodeling, <a href="https://donovanremodeling.com/services/" target="_blank" rel="noopener">services</a></li>
+    </ul>
+    <p>Research checked 6 November 2026. Figures are ranges and tiers from the sources above — vendor and publisher estimates, not audited prices and not quotes. No city-level permit fee, impact fee, rent figure or loan rate was verified in that research; where this page needs one, it either asks you for the number or tells you to confirm it with your city, a local contractor, your lender or your county assessor. Nothing on this page is financial, legal or tax advice.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var sizeEl = $("size"), stateEl = $("state"), cityEl = $("city"), rentEl = $("rent");
+  var includeSite = true;
+
+  // Cost basis per the research (per sq ft, low-high). Sources in footer.
+  var DETACHED = {
+    CA:    { lo:320, hi:350, basis:"California $320–$350+/sq ft (anchor ~$340 — BuildWithAPlan)" },
+    TX:    { lo:250, hi:265, basis:"Texas ~$250–$265/sq ft (anchor ~$264 — BuildWithAPlan)" },
+    FL:    { lo:150, hi:300, basis:"National $150–$300/sq ft — no verified Florida rate in the research" },
+    OTHER: { lo:150, hi:300, basis:"National $150–$300/sq ft (BuildWithAPlan / SelfStorage)" }
+  };
+  var CONVERSION = { lo:120, hi:220, basis:"Garage-conversion range $120–$220/sq ft (BuildWithAPlan)" };
+  var STATE_NAMES = { CA:"California", TX:"Texas", FL:"Florida", OR:"Oregon", WA:"Washington", VT:"Vermont", CT:"Connecticut", OTHER:"your state" };
+  var LAW_STATES = { CA:1, OR:1, WA:1, VT:1, CT:1 };
+
+  function fmt(n){ return "$" + Math.round(n).toLocaleString("en-US"); }
+  function esc(str){ return String(str).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function type(){ var r = document.querySelector('input[name="btype"]:checked'); return r ? r.value : "detached"; }
+
+  function basisFor(t, s){
+    if (t === "garage") return CONVERSION;
+    if (t === "jadu") return CONVERSION; // benchmark, labelled in output
+    return DETACHED[s] || DETACHED.OTHER; // detached + prefab (prefab: national basis, labelled)
+  }
+
+  function render(){
+    var t = type(), s = stateEl.value;
+    var size = parseInt(sizeEl.value, 10);
+    if (t === "jadu" && size > 500){ size = 500; sizeEl.value = 500; }
+    $("sizeVal").textContent = size.toLocaleString("en-US");
+    $("sizeHint").textContent = t === "jadu" ? "A junior ADU is defined as under 500 sq ft, so the calculator caps the size at 500." : "";
+
+    var b = basisFor(t, s);
+    if (t === "prefab"){ b = DETACHED.OTHER; }
+    var cLo = size * b.lo, cHi = size * b.hi;
+    var sLo = includeSite ? 20000 : 0, sHi = includeSite ? 50000 : 0;
+    var tLo = cLo + sLo, tHi = cHi + sHi, mid = (tLo + tHi) / 2;
+
+    var typeNames = { detached:"Detached ADU", garage:"Garage conversion", jadu:"Junior ADU (JADU)", prefab:"Prefab ADU" };
+    var place = (cityEl.value.trim() ? cityEl.value.trim() + ", " : "") + (STATE_NAMES[s] || "");
+    $("resultHead").textContent = "Estimate — " + typeNames[t] + " · " + size.toLocaleString("en-US") + " sq ft · " + place;
+    $("resultRange").textContent = fmt(tLo) + " – " + fmt(tHi);
+    $("resultMid").innerHTML = "Midpoint <strong>" + fmt(mid) + "</strong> · priced on " + b.basis + ".";
+
+    // Breakdown rows
+    var rows = "";
+    rows += "<tr><td>Construction<span class='note'>" + size.toLocaleString("en-US") + " sq ft × " + fmt(b.lo) + "–" + fmt(b.hi) + " per sq ft" +
+      (t === "jadu" ? " — conversion range used as a benchmark: the research publishes no separate JADU rate." : "") +
+      (t === "prefab" ? " — national range: the research publishes no separate prefab rate." : "") +
+      "</span><span class='bar'><i style='width:78%'></i></span></td><td class='amt'>" + fmt(cLo) + " – " + fmt(cHi) + "</td></tr>";
+    if (t === "garage" || t === "jadu"){
+      rows += "<tr><td>Included in that range — the lines to itemise<span class='note'>Slab · plumbing · electrical-panel upgrade · insulation · egress (named in the research for garage conversions)</span></td><td class='amt'>In range</td></tr>";
+    }
+    if (t === "prefab"){
+      rows += "<tr><td>Often missing from prefab vendor quotes<span class='note'>Delivery · crane placement · utility hookups — ask for these in writing; the research gives no verified figure.</span></td><td class='amt'>Not priced</td></tr>";
+    }
+    rows += "<tr><td>Site work<span class='note'>" + (includeSite ? "Grading, trenching and utility connections — the allowance the research flags as most often excluded." : "Excluded — add $20,000–$50,000 if your quote leaves it out.") + "</span>" +
+      (includeSite ? "<span class='bar'><i style='width:22%'></i></span>" : "") +
+      "</td><td class='amt'>" + (includeSite ? fmt(sLo) + " – " + fmt(sHi) : "$0") + "</td></tr>";
+    rows += "<tr><td>Permits &amp; impact fees<span class='note'>Set by your city; no verified per-city figure exists in the research, so they are not in this total." +
+      (s === "CA" && size < 750 ? " In California, impact fees are waived under 750 sq ft." : "") +
+      "</span></td><td class='amt'>Varies by city</td></tr>";
+    rows += "<tr class='total'><td>Estimated total range</td><td class='amt'>" + fmt(tLo) + " – " + fmt(tHi) + "</td></tr>";
+    $("breakBody").innerHTML = rows;
+
+    // Cross-checks against published totals
+    var notes = [];
+    if (t === "garage"){
+      notes.push("<b>Sanity check:</b> Angi&rsquo;s 2026 average garage conversion is <b>$110,000</b>, with most projects at <b>$60k–$150k</b>; BuildWithAPlan puts conversion totals at $45k–$150k. If your range lands far outside that, your size or scope is unusual — worth a second look, not an error.");
+    }
+    if (t === "detached"){
+      notes.push("<b>Sanity check:</b> the national average detached ADU is <b>~$180,000</b> (Cottage/Maxable via FindaTinyHouse). High-cost states and larger units sit well above it.");
+    }
+    if (s === "CA" && size < 750){
+      notes.push("<b>California fee waiver:</b> impact fees are waived for ADUs under 750 sq ft — at " + size + " sq ft this project is under the threshold.");
+    } else if (s === "CA"){
+      notes.push("<b>California fee note:</b> the impact-fee waiver applies under 750 sq ft; at " + size + " sq ft, expect impact fees — get the schedule from your city.");
+    }
+    if (LAW_STATES[s]){
+      notes.push("<b>State law:</b> " + STATE_NAMES[s] + " has a statewide ADU law, so your city generally cannot ban the project outright — but it still sets fees, setbacks and review timelines.");
+    } else if (s === "TX"){
+      notes.push("<b>State law:</b> Texas is not among the states with a statewide ADU law in the research — your city&rsquo;s zoning decides whether and where you can build.");
+    } else if (s === "FL"){
+      notes.push("<b>Open question:</b> the research verified no Florida $/sq ft and no Florida ADU-law summary. This estimate uses the national range — confirm both price and rules locally.");
+    } else {
+      notes.push("<b>State law:</b> 40+ states have introduced ADU-friendly legislation since 2020, but no statewide law for your state was verified in the research — your city&rsquo;s zoning governs.");
+    }
+    var cityName = cityEl.value.trim();
+    var cityEsc = esc(cityName);
+    notes.push("<b>" + (cityName ? cityEsc + " permits:" : "City permits:") + "</b> no verified permit cost or approval time for " + (cityName ? cityEsc : "your city") + " exists in the research. Permit timelines split by city tier (ADU-friendly vs. slow) — ask the permit office for total fees and current review time in writing.");
+    if (t === "prefab"){
+      notes.push("<b>Timeline:</b> prefab delivery is quoted at 2–8 weeks vs. 6–18 months for a site-built unit (vendor ranges) — but permits and site work still run on the city&rsquo;s clock.");
+    }
+    if (t === "detached"){
+      notes.push("<b>Timeline:</b> site-built ADUs run 6–18 months in the vendor ranges the research cites, permits included in the slow end of that range.");
+    }
+    if (t === "jadu"){
+      notes.push("<b>JADU rules:</b> a junior ADU sits inside the existing home or garage, under 500 sq ft. California-focused guidance flags owner-occupancy and kitchen/bath-sharing rules that don&rsquo;t apply to a full ADU — confirm which apply to you.");
+    }
+    $("permitNotes").innerHTML = notes.map(function(n){ return "<li>" + n + "</li>"; }).join("");
+
+    // Live city guide panel (textContent only — city name is user input)
+    $("cgTitle").textContent = cityName ? ("Your city guide — " + cityName) : "Your city guide";
+    $("cgPlace").textContent = (cityName ? cityName + ", " : "") + (STATE_NAMES[s] || "") + " · " + typeNames[t] + " · " + size.toLocaleString("en-US") + " sq ft";
+    $("cgLaw").textContent = LAW_STATES[s]
+      ? STATE_NAMES[s] + " has a statewide ADU law — your city generally cannot ban the project, but it sets fees, setbacks and timelines."
+      : (s === "TX"
+        ? "Texas has no statewide ADU law in the research — your city's zoning decides whether you can build at all. Start there."
+        : (s === "FL"
+          ? "No Florida ADU-law summary was verified in the research — confirm your city's rules directly."
+          : "No statewide ADU law for your state was verified in the research — your city's zoning governs."));
+    $("cgBasis").textContent = b.basis + " — estimated total " + fmt(tLo) + " – " + fmt(tHi) + " from the calculator.";
+    $("cgFee").textContent = (s === "CA")
+      ? (size < 750 ? "At " + size + " sq ft you are under California's 750 sq ft threshold — impact fees are waived. Confirm the waiver is applied to your application." : "At " + size + " sq ft you are over California's 750 sq ft waiver threshold — get the impact-fee schedule before pricing.")
+      : "Your city's permit + impact-fee schedule for a " + size.toLocaleString("en-US") + " sq ft unit — no verified figure exists in the research, so this is the number to get in writing first.";
+
+    // Rent & return
+    var rent = parseFloat(rentEl.value);
+    if (rent && rent > 0){
+      $("rentEmpty").hidden = true; $("rentGrid").hidden = false;
+      var annual = rent * 12;
+      $("rentAnnual").textContent = fmt(annual);
+      $("rentPayback").textContent = (mid / annual).toFixed(1) + " yrs";
+      $("rentYield").textContent = ((annual / mid) * 100).toFixed(1) + "%";
+    } else {
+      $("rentEmpty").hidden = false; $("rentGrid").hidden = true;
+    }
+
+    // Copy summary
+    $("copyBtn").onclick = function(){
+      var txt = "ADU estimate (estimates only — not a quote)\n" +
+        typeNames[t] + " · " + size + " sq ft · " + place + "\n" +
+        "Estimated total: " + fmt(tLo) + " – " + fmt(tHi) + " (midpoint " + fmt(mid) + ")\n" +
+        "Construction: " + fmt(cLo) + " – " + fmt(cHi) + " (" + b.basis + ")\n" +
+        "Site work: " + (includeSite ? fmt(sLo) + " – " + fmt(sHi) : "not included") + "\n" +
+        "Permits & impact fees: vary by city — not included; confirm with your city.\n" +
+        ((rent && rent > 0) ? ("Expected rent " + fmt(rent) + "/mo → gross " + fmt(rent*12) + "/yr, simple payback " + (mid/(rent*12)).toFixed(1) + " years (gross, before loan, tax, insurance, vacancy).\n") : "") +
+        "Confirm all figures with a local contractor and your city before committing.";
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(function(){ $("copiedMsg").textContent = "Copied — paste it anywhere."; },
+          function(){ $("copiedMsg").textContent = "Copy was blocked by the browser — the estimate is on screen above."; });
+      } else { $("copiedMsg").textContent = "Copy is not available in this browser — the estimate is on screen above."; }
+    };
+  }
+
+  document.querySelectorAll('input[name="btype"]').forEach(function(r){ r.addEventListener("change", render); });
+  sizeEl.addEventListener("input", render);
+  stateEl.addEventListener("change", render);
+  cityEl.addEventListener("input", render);
+  rentEl.addEventListener("input", render);
+  document.querySelectorAll(".chip").forEach(function(c){
+    c.addEventListener("click", function(){ sizeEl.value = c.getAttribute("data-size"); render(); });
+  });
+  $("siteYes").addEventListener("click", function(){ includeSite = true; this.setAttribute("aria-pressed","true"); $("siteNo").setAttribute("aria-pressed","false"); render(); });
+  $("siteNo").addEventListener("click", function(){ includeSite = false; this.setAttribute("aria-pressed","true"); $("siteYes").setAttribute("aria-pressed","false"); render(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
